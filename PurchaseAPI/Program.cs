@@ -16,6 +16,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<PurchaseDbContext>();
 
 builder.Services.AddScoped<IMaterialService,MaterialService>();
+builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 
 builder.Services.AddHostedService<PurchaseBackGroundService>();
 builder.Services.AddStackExchangeRedisCache(opt => { opt.Configuration = "localhost:6379"; });

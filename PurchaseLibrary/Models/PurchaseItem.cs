@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace PurchaseLibrary.Models;
 
@@ -19,5 +20,6 @@ public partial class PurchaseItem
 
     public virtual Material Item { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual Purchase? Purchase { get; set; }
 }
