@@ -117,23 +117,23 @@ namespace MaterialLibrary.Services
 
         #region Materials
 
-        //public async Task<IEnumerable<MaterialDTO>> GetallMaterialsAsync()
-        //{
-        //    var materials = await (from material in dbContext.Materials
-        //                     join materialType in dbContext.MaterialTypes on material.MaterialType equals materialType.Id
-        //                     select new MaterialDTO
-        //                     {
-        //                         Id = material.Id,
-        //                         Name = material.Name,
-        //                         MaterialType = materialType.Name,
-        //                         MaterialTypeId = materialType.Id,
-        //                         CreatedAt = material.CreatedAt,
-        //                         UpdatedAt = material.UpdatedAt,
-        //                         IsActive = material.IsActive
-        //                     }).ToListAsync();
+        public async Task<IEnumerable<MaterialDTO>> GetallMaterialsAsync()
+        {
+            var materials = await (from material in dbContext.Materials
+                                   join materialType in dbContext.MaterialTypes on material.MaterialType equals materialType.Id
+                                   select new MaterialDTO
+                                   {
+                                       Id = material.Id,
+                                       Name = material.Name,
+                                       MaterialType = materialType.Name,
+                                       MaterialTypeId = materialType.Id,
+                                       CreatedAt = material.CreatedAt,
+                                       UpdatedAt = material.UpdatedAt,
+                                       IsActive = material.IsActive
+                                   }).ToListAsync();
 
-        //    return materials;
-        //}
+            return materials;
+        }
 
         public async Task<Material> AddNewMaterialAsync(NewMaterialDTO newMaterialDto)
         {

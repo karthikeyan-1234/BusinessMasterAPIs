@@ -18,11 +18,25 @@ namespace PurchaseLibrary.Services
             => await dbContext.Purchases.Select(purchase => new PurchaseResult()
             {
                 Id = purchase.Id,
-                UpdatedAt = purchase.UpdatedAt,
-                CreatedAt = purchase.CreatedAt
+                UpdatedAt = DateOnly.FromDateTime(purchase.UpdatedAt.DateTime),
+                CreatedAt = DateOnly.FromDateTime(purchase.CreatedAt.DateTime),
+                IsActive = purchase.IsActive,
 
             }).ToListAsync();
 
+        public async Task<bool> UpdatePurchaseAsync(Purchase updatePurchase)
+        {
+            try
+            {
+                dbContext.Entry(updatePurchase).State = EntityState.Modified;
+                await dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
 
         public async Task<IEnumerable<PurchaseItemResult>> GetPurchaseItemsForPurchase(int purchaseId)
             => await dbContext.PurchaseItems.Where(p => p.PurchaseId == purchaseId).Select(item => new PurchaseItemResult()
@@ -94,13 +108,13 @@ namespace PurchaseLibrary.Services
                 {
                     foreach (var item in purchaseItems)
                         dbContext.PurchaseItems.Remove(item);
-
-                    await dbContext.SaveChangesAsync();
-
-                    return true;
                 }
 
-                return false;
+                dbContext.Entry(purchase).State = EntityState.Deleted;
+
+                await dbContext.SaveChangesAsync();
+
+                return true;
             }
 
             return false;

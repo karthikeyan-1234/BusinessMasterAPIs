@@ -10,6 +10,7 @@ namespace MaterialLibrary.Services
         Task<bool> DeleteMaterialAsync(int materialId);
         Task<bool> DeleteMaterialTypeAsync(int materialTypeId);
         Task<IEnumerable<MaterialType>?> GetMaterialTypesAsync();
+        Task<IEnumerable<MaterialDTO>?> GetallMaterialsAsync();
         Task SendAllMaterialsAsync();
         Task SendAllMaterialTypesAsync();
         Task<bool> UpdateMaterialAsync(Material updateMaterial);

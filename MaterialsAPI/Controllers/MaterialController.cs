@@ -35,8 +35,8 @@ namespace MaterialsAPI.Controllers
             return BadRequest();
         }
 
-        //[HttpGet("GetAllMaterialsAsync")]
-        //public async Task<IActionResult> GetAllMaterialsAsync() => Ok(await materialService.GetallMaterialsAsync());
+        [HttpGet("GetAllMaterialsAsync")]
+        public async Task<IActionResult> GetAllMaterialsAsync() => Ok(await materialService.GetallMaterialsAsync());
 
         [HttpDelete("DeleteMaterialAsync")]
         public async Task<IActionResult> DeleteMaterialAsync(int id)
