@@ -1,10 +1,7 @@
-
 using Microsoft.AspNetCore.Cors.Infrastructure;
 
-using PurchaseAPI.Services;
-
-using PurchaseLibrary.Models;
-using PurchaseLibrary.Services;
+using VendorLibrary.Models;
+using VendorLibrary.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,14 +12,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<PurchaseDbContext>();
-
-builder.Services.AddScoped<IMaterialService,MaterialService>();
-builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
-
-builder.Services.AddHostedService<PurchaseBackGroundService>();
-builder.Services.AddStackExchangeRedisCache(opt => { opt.Configuration = "localhost:6379"; });
+builder.Services.AddScoped<IVendorChangeNotification, VendorChangeNotification>();
+builder.Services.AddDbContext<VendorDbContext>();
 
 CorsPolicyBuilder cbuilder = new CorsPolicyBuilder().AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200").AllowCredentials();
 CorsPolicy policy = cbuilder.Build();

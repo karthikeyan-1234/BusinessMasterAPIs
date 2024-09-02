@@ -15,5 +15,6 @@ namespace PurchaseLibrary.DTOs
         public DateOnly CreatedAt { get; set; }
 
         public bool IsActive { get; set; }
+
     }
 }

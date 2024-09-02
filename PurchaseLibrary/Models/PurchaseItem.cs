@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace PurchaseLibrary.Models;
 
@@ -18,8 +17,9 @@ public partial class PurchaseItem
 
     public bool IsActive { get; set; }
 
-    public virtual Material Item { get; set; } = null!;
+    public decimal? Rate { get; set; }
 
-    [JsonIgnore]
+    public decimal? Qty { get; set; }
+
     public virtual Purchase? Purchase { get; set; }
 }

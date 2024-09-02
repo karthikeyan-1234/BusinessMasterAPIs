@@ -49,6 +49,7 @@ namespace PurchaseAPI.Services
 
             channel.ExchangeDeclare(exchange: "MaterialExchange", type: ExchangeType.Topic);
             channel.ExchangeDeclare(exchange: "MaterialTypeExchange", type: ExchangeType.Topic);
+            channel.ExchangeDeclare(exchange: "VendorExchange", type: ExchangeType.Topic);
 
             #endregion
 
@@ -56,7 +57,7 @@ namespace PurchaseAPI.Services
 
             var materialQueue = channel.QueueDeclare().QueueName;
             var materialTypeQueue = channel.QueueDeclare().QueueName;
-
+            var vendorQueue = channel.QueueDeclare().QueueName;
 
             channel.QueueBind(queue: materialQueue, exchange: "MaterialExchange", routingKey: "AllRecords");
             channel.QueueBind(queue: materialQueue, exchange: "MaterialExchange", routingKey: "Added");
@@ -67,6 +68,11 @@ namespace PurchaseAPI.Services
             channel.QueueBind(queue: materialTypeQueue, exchange: "MaterialTypeExchange", routingKey: "Added");
             channel.QueueBind(queue: materialTypeQueue, exchange: "MaterialTypeExchange", routingKey: "Updated");
             channel.QueueBind(queue: materialTypeQueue, exchange: "MaterialTypeExchange", routingKey: "Deleted");
+
+            channel.QueueBind(queue: vendorQueue, exchange: "VendorExchange", routingKey: "AllRecords");
+            channel.QueueBind(queue: vendorQueue, exchange: "VendorExchange", routingKey: "Added");
+            channel.QueueBind(queue: vendorQueue, exchange: "VendorExchange", routingKey: "Updated");
+            channel.QueueBind(queue: vendorQueue, exchange: "VendorExchange", routingKey: "Deleted");
 
             #endregion
 
@@ -111,7 +117,7 @@ namespace PurchaseAPI.Services
                     }
                 }
 
-                if(ea.ConsumerTag == materialTypeQueue)
+                if (ea.ConsumerTag == materialTypeQueue)
                 {
                     if (ea.RoutingKey == NotificationType.AllRecords.ToString())
                     {
@@ -137,10 +143,38 @@ namespace PurchaseAPI.Services
                         await cache.SetStringAsync("materialTypeMaster", message);
                     }
                 }
+
+                if (ea.ConsumerTag == vendorQueue)
+                {
+                    if (ea.RoutingKey == NotificationType.AllRecords.ToString())
+                    {
+                        var vendors = JsonSerializer.Deserialize<List<Vendor>>(broadCastMessage.Message!);
+
+                        using (var scope = serviceScopeFactory.CreateScope())
+                        {
+                            var myScopedService = scope.ServiceProvider.GetRequiredService<IVendorService>();
+                            await myScopedService.UpsertAllVendorsAsync(vendors!);
+                        }
+                        await cache.SetStringAsync("vendorMaster", message);
+                    }
+
+                    if (broadCastMessage.Type == NotificationType.Added || broadCastMessage.Type == NotificationType.Updated || broadCastMessage.Type == NotificationType.Deleted)
+                    {
+                        var vendor = JsonSerializer.Deserialize<Vendor>(broadCastMessage.Message!);
+
+                        using (var scope = serviceScopeFactory.CreateScope())
+                        {
+                            var myScopedService = scope.ServiceProvider.GetRequiredService<IVendorService>();
+                            await myScopedService.UpsertVendorAsync(vendor!);
+                        }
+                        await cache.SetStringAsync("vendorMaster", message);
+                    }
+                }
             };
 
             channel.BasicConsume(queue: materialQueue, autoAck: true, consumer: consumer,consumerTag: materialQueue);
             channel.BasicConsume(queue: materialTypeQueue, autoAck: true, consumer: consumer, consumerTag: materialTypeQueue);
+            channel.BasicConsume(queue: vendorQueue, autoAck: true, consumer: consumer, consumerTag: vendorQueue);
             #endregion
 
             await Task.Delay(Timeout.Infinite, stoppingToken);          

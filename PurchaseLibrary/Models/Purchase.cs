@@ -13,5 +13,9 @@ public partial class Purchase
 
     public bool IsActive { get; set; }
 
+    public int? VendorId { get; set; }
+
     public virtual ICollection<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
+
+    public virtual Vendor? Vendor { get; set; }
 }

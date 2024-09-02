@@ -19,5 +19,9 @@ namespace PurchaseLibrary.DTOs
         public DateTimeOffset CreatedAt { get; set; }
 
         public bool IsActive { get; set; }
+
+        public decimal Rate { get; set; }
+
+        public decimal Qty { get; set; }
     }
 }

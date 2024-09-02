@@ -18,6 +18,4 @@ public partial class Material
     public bool? IsActive { get; set; }
 
     public virtual MaterialType? MaterialTypeNavigation { get; set; }
-
-    public virtual ICollection<PurchaseItem> PurchaseItems { get; set; } = new List<PurchaseItem>();
 }

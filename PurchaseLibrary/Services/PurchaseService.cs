@@ -46,7 +46,9 @@ namespace PurchaseLibrary.Services
                 ItemId = item.ItemId,
                 CreatedAt = item.CreatedAt,
                 UpdatedAt = item.UpdatedAt,
-                IsActive = item.IsActive
+                IsActive = item.IsActive,
+                Qty = (decimal)item.Qty,
+                Rate = (decimal)item.Rate,
             }).ToListAsync();
 
         public async Task<Purchase> AddNewPurchaseWithDetails(NewPurchaseWithDetailDTO newPurchase)
