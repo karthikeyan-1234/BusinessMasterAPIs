@@ -14,6 +14,9 @@ namespace PurchaseLibrary.Services
             this.dbContext = dbContext;
         }
 
+        public async Task<IEnumerable<Material>> GetAllMaterialsAsync()
+        => await dbContext.Materials.ToListAsync();
+
         public async Task<IEnumerable<PurchaseResult>> GetAllPurchasesAsync()
             => await dbContext.Purchases.Select(purchase => new PurchaseResult()
             {
@@ -39,17 +42,18 @@ namespace PurchaseLibrary.Services
         }
 
         public async Task<IEnumerable<PurchaseItemResult>> GetPurchaseItemsForPurchase(int purchaseId)
-            => await dbContext.PurchaseItems.Where(p => p.PurchaseId == purchaseId).Select(item => new PurchaseItemResult()
-            {
-                Id = item.Id,
-                PurchaseId = purchaseId,
-                ItemId = item.ItemId,
-                CreatedAt = item.CreatedAt,
-                UpdatedAt = item.UpdatedAt,
-                IsActive = item.IsActive,
-                Qty = (decimal)item.Qty,
-                Rate = (decimal)item.Rate,
-            }).ToListAsync();
+            => await dbContext.PurchaseItems
+            .Join(dbContext.Materials,p => p.ItemId, m => m.Id, (p,m) => new PurchaseItemResult{
+                Id =p.Id!,
+                PurchaseId = p.PurchaseId,
+                ItemId = p.ItemId,
+                ItemName = m.Name,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt,
+                IsActive = p.IsActive,
+                Qty = p.Qty??0,
+                Rate = p.Rate??0,
+            }).Where(x => x.PurchaseId == purchaseId).ToListAsync();
 
         public async Task<Purchase> AddNewPurchaseWithDetails(NewPurchaseWithDetailDTO newPurchase)
         {
@@ -122,19 +126,47 @@ namespace PurchaseLibrary.Services
             return false;
         }
 
-        public async Task AddNewPurchaseItemAsync(NewPurchaseItemDTO newPurchaseItem, int PurchaseId)
+        public async Task<PurchaseItemResult> AddNewPurchaseItemAsync(NewPurchaseItemDTO newPurchaseItem)
         {
-            await dbContext.PurchaseItems.AddAsync(new PurchaseItem()
+            var result = (await dbContext.PurchaseItems.AddAsync(new PurchaseItem()
             {
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 IsActive = newPurchaseItem.IsActive,
-                PurchaseId = PurchaseId,
-                ItemId = newPurchaseItem.ItemId
-            });
+                PurchaseId = newPurchaseItem.PurchaseId,
+                ItemId = newPurchaseItem.ItemId,
+                Rate = newPurchaseItem.Rate,
+                Qty = newPurchaseItem.Qty
+            })).Entity;
 
             await dbContext.SaveChangesAsync();
+
+            return new PurchaseItemResult()
+            {
+                Id = result.Id,
+                PurchaseId = result.PurchaseId,
+                ItemId = result.ItemId,
+                IsActive = result.IsActive,
+                CreatedAt = result.CreatedAt,
+                UpdatedAt = result.UpdatedAt,
+                Rate = result.Rate,
+                Qty = result.Qty
+            };
         }
+
+        public async Task UpdatePurchaseItemAsync(PurchaseItem purchaseItem)
+        {
+            try
+            {
+                purchaseItem.Purchase = dbContext.Purchases.Where(p => p.Id == purchaseItem.PurchaseId).FirstOrDefault();
+                dbContext.PurchaseItems.Entry(purchaseItem).State = EntityState.Modified;
+                await dbContext.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }   
 
         public async Task<bool> RemovePurchaseItemAsync(int purchaseItemId)
         {

@@ -15,8 +15,8 @@ namespace VendorLibrary.Services
 {
     public class VendorService : IVendorService
     {
-        VendorDbContext dbContext;
-        IVendorChangeNotification notification;
+        VendorDbContext dbContext; //DB connection
+        IVendorChangeNotification notification; //Notification service
 
         public VendorService(VendorDbContext dbContext, IVendorChangeNotification notification)
         {

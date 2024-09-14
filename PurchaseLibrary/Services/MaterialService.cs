@@ -1,4 +1,6 @@
-﻿using PurchaseLibrary.Models;
+﻿using Microsoft.EntityFrameworkCore;
+
+using PurchaseLibrary.Models;
 
 using System;
 using System.Collections.Generic;
@@ -20,13 +22,13 @@ namespace PurchaseLibrary.Services
         public async Task UpsertAllMaterialTypesAsync(List<MaterialType> materialTypes)
         {
             var missingMaterialTypes = from matType in materialTypes
-                                       join matType2 in dbContext.MaterialTypes on matType.Id equals matType2.Id into matGroup
+                                       join matType2 in dbContext.MaterialTypes.AsNoTracking() on matType.Id equals matType2.Id into matGroup
                                        from matType3 in matGroup.DefaultIfEmpty()
                                        where matType3 == null
                                        select matType;
 
             var matchingMaterialTypes = from matType in materialTypes
-                                        join matType2 in dbContext.MaterialTypes on matType.Id equals matType2.Id
+                                        join matType2 in dbContext.MaterialTypes.AsNoTracking() on matType.Id equals matType2.Id
                                         select matType;
 
             if (missingMaterialTypes.Any())
@@ -43,13 +45,13 @@ namespace PurchaseLibrary.Services
         public async Task UpsertAllMaterialsAsync(List<Material> materials)
         {
             var missingMaterials = from matType in materials
-                                   join matType2 in dbContext.Materials on matType.Id equals matType2.Id into matGroup
+                                   join matType2 in dbContext.Materials.AsNoTracking() on matType.Id equals matType2.Id into matGroup
                                    from matType3 in matGroup.DefaultIfEmpty()
                                    where matType3 == null
                                    select matType;
 
             var matchingMaterials = from matType in materials
-                                    join matType2 in dbContext.Materials on matType.Id equals matType2.Id
+                                    join matType2 in dbContext.Materials.AsNoTracking() on matType.Id equals matType2.Id
                                     select matType;
 
             if (missingMaterials.Any())
@@ -64,7 +66,7 @@ namespace PurchaseLibrary.Services
 
         public async Task UpsertMaterialAsync(Material material)
         {
-            if (await dbContext.Materials.FindAsync(material.Id) != null)
+            if (await dbContext.Materials.AsNoTracking().Where(mat => mat.Id == material.Id).CountAsync() > 0)
                 dbContext.Materials.Update(material);
             else
                 dbContext.Materials.Add(material);
@@ -74,7 +76,7 @@ namespace PurchaseLibrary.Services
 
         public async Task UpsertMaterialTypeAsync(MaterialType materialType)
         {
-            if (await dbContext.MaterialTypes.FindAsync(materialType.Id) != null)
+            if (await dbContext.MaterialTypes.AsNoTracking().Where(mattype => mattype.Id == materialType.Id ).CountAsync() > 0)
                 dbContext.MaterialTypes.Update(materialType);
             else
                 dbContext.MaterialTypes.Add(materialType);

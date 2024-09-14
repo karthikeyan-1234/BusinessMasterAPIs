@@ -14,14 +14,16 @@ namespace PurchaseLibrary.DTOs
 
         public int ItemId { get; set; }
 
+        public string? ItemName { get; set; }
+
         public DateTimeOffset UpdatedAt { get; set; }
 
         public DateTimeOffset CreatedAt { get; set; }
 
         public bool IsActive { get; set; }
 
-        public decimal Rate { get; set; }
+        public decimal? Rate { get; set; }
 
-        public decimal Qty { get; set; }
+        public decimal? Qty { get; set; }
     }
 }

@@ -20,6 +20,10 @@ namespace PurchaseAPI.Controllers
             this.purchaseService = purchaseService;
         }
 
+        [HttpGet("GetAllMaterialsAsync")]
+        public async Task<IActionResult> GetAllMaterialsAsync()
+            => Ok(await purchaseService.GetAllMaterialsAsync());
+
         //Add New Purchase
         [HttpPost("AddNewPurchaseAsync")]
         public async Task<IActionResult> AddNewPurchaseAsync(NewPurchaseDTO newPurchase)
@@ -66,7 +70,8 @@ namespace PurchaseAPI.Controllers
         {
             try
             {
-                return Ok(await purchaseService.GetPurchaseItemsForPurchase(PurchaseId));
+                var result = await purchaseService.GetPurchaseItemsForPurchase(PurchaseId);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -99,6 +104,47 @@ namespace PurchaseAPI.Controllers
             {
 
                 return BadRequest("Unable to delete..!!");
+            }
+        }
+
+        [HttpPut("UpdatePurchaseItemAsync")]
+        public async Task<IActionResult> UpdatePurchaseItemAsync(PurchaseItem purchaseItem)
+        {
+            try
+            {
+                await purchaseService.UpdatePurchaseItemAsync(purchaseItem);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("DeletePurchaseItemAsync")]
+        public async Task<IActionResult> DeletePurchaseItemAsync(int purchaseItemId)
+        {
+            try
+            {
+                await purchaseService.RemovePurchaseItemAsync(purchaseItemId);
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("AddNewPurchaseItemAsync")]
+        public async Task<IActionResult> AddNewPurchaseItemAsync(NewPurchaseItemDTO newPurchaseItem)
+        {
+            try
+            {
+                return Ok(await purchaseService.AddNewPurchaseItemAsync(newPurchaseItem));
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("Unable to add purchase item");
             }
         }
     }

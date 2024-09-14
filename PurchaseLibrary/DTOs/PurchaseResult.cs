@@ -8,11 +8,15 @@ namespace PurchaseLibrary.DTOs
 {
     public class PurchaseResult
     {
-        public int Id { get; set; }
+        public int Id { get; set; } 
 
         public DateOnly UpdatedAt { get; set; }
 
         public DateOnly CreatedAt { get; set; }
+
+        public int VendorId { get; set; }
+
+        public string? VendorName { get; set; }
 
         public bool IsActive { get; set; }
 
